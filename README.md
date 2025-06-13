@@ -13,3 +13,6 @@ https://github.com/user-attachments/assets/ad5dbc9f-d0d7-4655-b7bf-502406fada6e
 Opdracht 5 video:
 https://github.com/user-attachments/assets/610dbc03-7deb-4875-87cb-c00ed83cc06d
 
+Opdracht 6 video:
+https://github.com/user-attachments/assets/b89cd313-6f39-4927-b9d8-65abe2dba9e7
+
