@@ -16,3 +16,6 @@ https://github.com/user-attachments/assets/610dbc03-7deb-4875-87cb-c00ed83cc06d
 Opdracht 6 video:
 https://github.com/user-attachments/assets/b89cd313-6f39-4927-b9d8-65abe2dba9e7
 
+Opdracht 7 video:
+https://github.com/user-attachments/assets/74e69e7b-e54c-4818-871a-649482064a26
+
