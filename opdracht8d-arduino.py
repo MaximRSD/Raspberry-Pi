@@ -1,33 +1,39 @@
-import RPi.GPIO as GPIO
-import time
+const int piOutputPins[] = {2, 3};  // naar GPIO17 en GPIO27
+const int buttonInputPin = 4;       // signaal van Raspberry Pi
 
-buttonPin = 24          # Knop
-outputToArduino = 4     # Stuur knopstatus naar Arduino pin 4
-leds = [22, 23]         # LEDs op de Pi
-fromArduino = [17, 27]  # Signaal van Arduino (pin 2 en 3)
+unsigned long lastTime = 0;
+bool ledState = false;
 
-GPIO.setmode(GPIO.BCM)
+void setup() {
+  Serial.begin(9600);
 
-GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(outputToArduino, GPIO.OUT)
+  pinMode(piOutputPins[0], OUTPUT);  // LED1
+  pinMode(piOutputPins[1], OUTPUT);  // LED2
+  pinMode(buttonInputPin, INPUT);    // signaal van knop (via Pi)
 
-GPIO.setup(fromArduino[0], GPIO.IN)
-GPIO.setup(fromArduino[1], GPIO.IN)
-GPIO.setup(leds[0], GPIO.OUT)
-GPIO.setup(leds[1], GPIO.OUT)
+  // Start met beide LEDs uit
+  digitalWrite(piOutputPins[0], LOW);
+  digitalWrite(piOutputPins[1], LOW);
+}
 
-try:
-    while True:
-        # Lees knopstatus en stuur die naar Arduino
-        btn_state = GPIO.input(buttonPin)
-        GPIO.output(outputToArduino, btn_state)
+void loop() {
+  int buttonState = digitalRead(buttonInputPin);
 
-        # Lees Arduino signalen en stuur naar LEDs
-        GPIO.output(leds[0], GPIO.input(fromArduino[0]))
-        GPIO.output(leds[1], GPIO.input(fromArduino[1]))
+  if (buttonState == LOW) {
+    // Knop is ingedrukt → knipperen
+    unsigned long currentTime = millis();
+    if (currentTime - lastTime >= 1000) {
+      lastTime = currentTime;
+      ledState = !ledState;
 
-        time.sleep(0.1)
+      digitalWrite(piOutputPins[0], ledState ? HIGH : LOW);
+      digitalWrite(piOutputPins[1], ledState ? LOW : HIGH);
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
-    print("GPIO opgeruimd")
+      Serial.println("Knipperen...");
+    }
+  } else {
+    // Knop niet ingedrukt → beide uit
+    digitalWrite(piOutputPins[0], LOW);
+    digitalWrite(piOutputPins[1], LOW);
+  }
+}
