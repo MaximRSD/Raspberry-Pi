@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 
-btnPin = 6
 leds = [22, 23]
 # 3 input, 4 output
 ardPins = [17, 27]
