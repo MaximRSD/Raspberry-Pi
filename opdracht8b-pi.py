@@ -19,7 +19,7 @@ try:
     counter = 0
 
     while True:
-        # Elke 0.5 seconden doen we iets
+        # Elke 0.5 seconden
         if counter % 3 == 0:  # om de 1.5s → toggle LED1
             led1_on = not led1_on
             toggle_led(led1_on, LED1_PIN)
