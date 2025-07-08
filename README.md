@@ -25,3 +25,12 @@ https://github.com/user-attachments/assets/12b96c2e-9660-4067-a62d-a317f02cef07
 Opdracht8b video:
 https://github.com/user-attachments/assets/b5a1033e-d807-4a1f-a218-ef112abedcc3
 
+Opdracht 8c video:
+https://github.com/user-attachments/assets/0439afaf-77b8-4cba-8753-ad2dd49ff60a
+
+Opdracht 8d video:
+https://github.com/user-attachments/assets/3dccfa37-79e1-4545-85c8-962f19b336a1
+
+Opdracht 9 video:
+https://github.com/user-attachments/assets/fb23b111-015d-413a-93a8-27e896072de5
+
