@@ -32,5 +32,6 @@ Opdracht 8d video:
 https://github.com/user-attachments/assets/3dccfa37-79e1-4545-85c8-962f19b336a1
 
 Opdracht 9 video:
-https://github.com/user-attachments/assets/fb23b111-015d-413a-93a8-27e896072de5
+https://github.com/user-attachments/assets/2592291e-5a65-4202-9ee7-2859ee525770
+
 
