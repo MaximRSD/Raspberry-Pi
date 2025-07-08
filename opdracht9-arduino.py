@@ -4,82 +4,76 @@ const int irPin = 12;
 IRrecv irrecv(irPin);
 decode_results results;
 
-// LED-pinnen
+// LED select pinnen (naar Pi): 8–11
 const int ledPins[] = {8, 9, 10, 11};
 
-int selectedLed = -1;             // -1 = standaardmodus
-int blinkDelay = 500;             // Snelheid (ms)
-unsigned long lastToggle = 0;
-bool ledState = false;
+// Snelheid bits (naar Pi): 2 = LSB, 3 = MSB
+const int speedPins[] = {2, 3};
+
+int selectedLed = -1;      // -1 = standaardmodus
+int speedLevel = 2;        // 0 (snel) tot 3 (traag)
 
 void setup() {
-  irrecv.enableIRIn();
   Serial.begin(9600);
+  irrecv.enableIRIn();
 
+  // Output pinnen voor LED selectie
   for (int i = 0; i < 4; i++) {
     pinMode(ledPins[i], OUTPUT);
     digitalWrite(ledPins[i], LOW);
   }
 
+  // Output pinnen voor snelheid bits
+  for (int i = 0; i < 2; i++) {
+    pinMode(speedPins[i], OUTPUT);
+    digitalWrite(speedPins[i], LOW);
+  }
+
   Serial.println("Arduino gestart – wacht op IR signaal.");
 }
 
-void loop() {
-  // 📡 Lees IR-signaal
-  if (irrecv.decode(&results)) {
-    unsigned long code = results.value;
-    Serial.print("IR ontvangen: ");
-    Serial.println(code, HEX);
+void updateOutputs() {
+  for (int i = 0; i < 4; i++) {
+    // Zet HIGH als i == selectedLed OF i == volgende LED (met wrap-around)
+    bool isSecondLed = (selectedLed != -1) && (i == (selectedLed) % 4);
+    bool isSelectedLed = (i == selectedLed);
+    bool isDefault = (selectedLed == -1); // alle LEDs aan in default
 
-    // === LED-selectie op cijfers 1 t/m 4 ===
-    if (code == 0x9716BE3F) {       // knop 1
-      selectedLed = 0;
-    } else if (code == 0x3D9AE3F7) { // knop 2
-      selectedLed = 1;
-    } else if (code == 0x6182021B) { // knop 3
-      selectedLed = 2;
-    } else if (code == 0x8C22657B) { // knop 4
-      selectedLed = 3;
-
-    // === Snelheid aanpassen via - en + knoppen ===
-    } else if (code == 0xF076C13B) {  // "-" knop → sneller
-      blinkDelay = max(100, blinkDelay - 100);
-      Serial.print("Sneller → ");
-      Serial.println(blinkDelay);
-    } else if (code == 0xA3C8EDDB) {  // "+" knop → trager
-      blinkDelay = min(2000, blinkDelay + 100);
-      Serial.print("Trager → ");
-      Serial.println(blinkDelay);
-
-    //Reset naar standaardmodus
-    } else if (code == 0xFF38C7) {   // OK knop
-      selectedLed = -1;
-      Serial.println("Reset naar standaardmodus");
-    }
-
-    irrecv.resume(); // Klaar voor volgende signaal
+    digitalWrite(ledPins[i], (isSelectedLed || isSecondLed || isDefault) ? HIGH : LOW);
   }
 
-  //Knipperlogica op basis van millis()
-  unsigned long currentMillis = millis();
-  if (currentMillis - lastToggle >= blinkDelay) {
-    lastToggle = currentMillis;
-    ledState = !ledState;
+  // Snelheid bits
+  digitalWrite(speedPins[0], bitRead(speedLevel, 0)); // LSB
+  digitalWrite(speedPins[1], bitRead(speedLevel, 1)); // MSB
+}
 
-    //Reset alle LEDs
-    for (int i = 0; i < 4; i++) {
-      digitalWrite(ledPins[i], LOW);
+
+void loop() {
+  if (irrecv.decode(&results)) {
+    unsigned long code = results.value;
+    Serial.print("Ontvangen code: ");
+    Serial.println(code, HEX);
+
+    switch (code) {
+      case 0x9716BE3F: selectedLed = 0; Serial.println("LED 1 geselecteerd"); break;
+      case 0x3D9AE3F7: selectedLed = 1; Serial.println("LED 2 geselecteerd"); break;
+      case 0x6182021B: selectedLed = 2; Serial.println("LED 3 geselecteerd"); break;
+      case 0x8C22657B: selectedLed = 3; Serial.println("LED 4 geselecteerd"); break;
+
+      case 0xF076C13B:  // "-" knop
+        speedLevel = max(0, speedLevel - 1);
+        Serial.print("Sneller → Niveau: ");
+        Serial.println(speedLevel);
+        break;
+
+      case 0xA3C8EDDB:  // "+" knop
+        speedLevel = min(3, speedLevel + 1);
+        Serial.print("Trager → Niveau: ");
+        Serial.println(speedLevel);
+        break;
     }
 
-    if (selectedLed == -1) {
-      //Standaardmodus: LED 0 en 1 knipperen
-      digitalWrite(ledPins[0], ledState ? HIGH : LOW);
-      digitalWrite(ledPins[1], ledState ? HIGH : LOW);
-    } else {
-      //Gekozen LED + naastgelegen LED knipperen
-      digitalWrite(ledPins[selectedLed], ledState ? HIGH : LOW);
-      int secondLed = (selectedLed + 1) % 4;
-      digitalWrite(ledPins[secondLed], ledState ? HIGH : LOW);
-    }
+    updateOutputs(); // Zet outputs voor Pi
+    irrecv.resume();
   }
 }
